@@ -303,7 +303,11 @@ func (sts *stsAPIHandlers) AssumeRoleWithSSO(w http.ResponseWriter, r *http.Requ
 	}
 
 	m, err := v.Validate(token, r.Form.Get(stsDurationSeconds))
+	fmt.Println("Claims map:")
+	fmt.Println(m)
 	if err != nil {
+		fmt.Println("Validate returned an error!!")
+		fmt.Println(err.Error())
 		switch err {
 		case openid.ErrTokenExpired:
 			switch action {
@@ -328,7 +332,11 @@ func (sts *stsAPIHandlers) AssumeRoleWithSSO(w http.ResponseWriter, r *http.Requ
 	var policyName string
 	policySet, ok := iampolicy.GetPoliciesFromClaims(m, iamPolicyClaimNameOpenID())
 	if ok {
+		fmt.Println("GetPoliciesFromClaims returned OK")
 		policyName = globalIAMSys.CurrentPolicies(strings.Join(policySet.ToSlice(), ","))
+		fmt.Println(policyName)
+	} else {
+		fmt.Println("GetPoliciesFromClaims returned NOT OK")
 	}
 
 	if policyName == "" && globalPolicyOPA == nil {
